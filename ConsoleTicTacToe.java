@@ -3,37 +3,22 @@ import java.util.Scanner;
 
 public class ConsoleTicTacToe {
 
-    int swabPlayers(int currentPlayer) {
+    int swapPlayers(int currentPlayer) {
         return currentPlayer *= -1;
     }
 
     boolean checkWinning(int[][] logicBoard) {
-        // check rows and columns
-        for (int i = 0; i < 3; i++) {
-            if (logicBoard[0][i] + logicBoard[1][i] + logicBoard[2][i] == 3) {
-                return true;
-            }
-            if (logicBoard[0][i] + logicBoard[1][i] + logicBoard[2][i] == -3) {
-                return true;
-            }
-            if (logicBoard[i][0] + logicBoard[i][1] + logicBoard[i][2] == 3) {
-                return true;
-            }
-            if (logicBoard[i][0] + logicBoard[i][1] + logicBoard[i][2] == -3) {
+        int size = logicBoard.length;
+        for (int i = 0; i < size; i++) {
+            // Check rows and columns
+            if (Math.abs(logicBoard[i][0] + logicBoard[i][1] + logicBoard[i][2]) == size
+                    || Math.abs(logicBoard[0][i] + logicBoard[1][i] + logicBoard[2][i]) == size) {
                 return true;
             }
         }
-        // check diagonals
-        if (logicBoard[0][0] + logicBoard[1][1] + logicBoard[2][2] == 3) {
-            return true;
-        }
-        if (logicBoard[0][0] + logicBoard[1][1] + logicBoard[2][2] == -3) {
-            return true;
-        }
-        if (logicBoard[0][2] + logicBoard[1][1] + logicBoard[2][0] == 3) {
-            return true;
-        }
-        if (logicBoard[0][2] + logicBoard[1][1] + logicBoard[2][0] == -3) {
+        // Check diagonals
+        if (Math.abs(logicBoard[0][0] + logicBoard[1][1] + logicBoard[2][2]) == size
+                || Math.abs(logicBoard[0][2] + logicBoard[1][1] + logicBoard[2][0]) == size) {
             return true;
         }
         return false;
@@ -83,6 +68,7 @@ public class ConsoleTicTacToe {
         int currentPlayer = 1;
         int playerNumber;
         int choice = 0;
+        int turnCounter = 0;
         boolean gameOver = false;
         char number = '1';
         // Scanner object
@@ -109,27 +95,33 @@ public class ConsoleTicTacToe {
                     choice = scanner.nextInt();
                     if (choice < 1 || choice > 9) {
                         System.out.println("Invalid input. Please enter a number between 1 and 9.");
+                    } else if (logicBoard[(int) (choice - 1) / 3][(int) (choice - 1) % 3] != 0) {
+                        System.out.println("Invalid input. Please select a free field.");
                     } else {
+                        turnCounter++;
                         break;
                     }
                 } else {
-
                     choice = 0;
                 }
             }
             choice--;
             logicBoard[(int) choice / 3][(int) choice % 3] = currentPlayer;
             gameOver = game.checkWinning(logicBoard);
+            System.out.println(turnCounter);
             choice = 0;
-            if (!gameOver) {
-                currentPlayer = game.swabPlayers(currentPlayer);
-            } else {
+            if (!gameOver && turnCounter < 9) {
+                currentPlayer = game.swapPlayers(currentPlayer);
+            } else if (gameOver || turnCounter >= 9) {
                 game.drawBoard(visibleBoard, logicBoard);
                 playerNumber = game.getPlayerNumber(currentPlayer);
-                System.out.printf("Game Over. Player %d won!%n", playerNumber);
+                if (turnCounter >= 9) {
+                    System.out.println("It's a draw!");
+                } else {
+                    System.out.printf("Game Over. Player %d won!%n", playerNumber);
+                }
                 break;
             }
-
         }
         scanner.close();
     }
